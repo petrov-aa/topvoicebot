@@ -31,3 +31,4 @@ class Voice(Base):
     # Идентификатор отправителя в бота
     sender_id = Column(Integer, ForeignKey("chat.id", ondelete="CASCADE"))
     sender = relationship("Chat", cascade="all, delete-orphan")
+    title = Column(String(255))
