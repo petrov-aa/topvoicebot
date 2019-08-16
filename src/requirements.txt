@@ -1,0 +1,4 @@
+pyTelegramBotAPI
+requests[socks]
+python-i18n[YAML]
+emoji
