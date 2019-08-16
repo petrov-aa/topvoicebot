@@ -3,7 +3,7 @@
 """
 
 from telebot import TeleBot, apihelper
-from telebot.types import Message as TelegramMessage
+from telebot.types import Message as TelegramMessage, InlineQueryResultVoice
 
 from app import config, db, repo
 from app.models import Chat, Voice
@@ -74,3 +74,17 @@ def on_text(message: TelegramMessage, session=None):
         voice.title = message.text
         chat.state = None
         bot.send_message(message.chat.id, t("app.message.voice_successfully_saved"))
+
+
+@bot.inline_handler(lambda query: True)
+@db.commit_session
+def on_inline(query, session=None):
+    query_text = query.query
+    suggestions = list()
+    if len(query_text) > 0:
+        voices = repo.search_voice(query_text)
+        for voice in voices:
+            suggestions.append(InlineQueryResultVoice(voice.id,
+                                                      voice.file_id,
+                                                      voice.title))
+    bot.answer_inline_query(query.id, suggestions)

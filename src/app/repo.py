@@ -50,3 +50,11 @@ def get_voice_by_id(voice_id: int, session=None) -> Voice:
     return session.query(Voice)\
         .filter(Voice.id == voice_id)\
         .first()
+
+
+@db.flush_session
+def search_voice(query: str, session=None) -> list:
+    search = "%{}%".format(query)
+    return session.query(Voice)\
+        .filter(Voice.title.like(search))\
+        .all()
