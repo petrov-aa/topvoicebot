@@ -3,7 +3,7 @@
 """
 
 from app import db
-from app.models import Chat
+from app.models import Chat, Voice
 
 
 @db.flush_session
@@ -36,3 +36,17 @@ def chat_create_new(telegram_chat_id: int, session=None) -> Chat:
     session.add(chat)
     session.flush()
     return chat
+
+
+@db.flush_session
+def get_voice_by_id(voice_id: int, session=None) -> Voice:
+    """
+    Возвращает войс по идентификатору войса
+
+    :param voice_id: Идентификатор войса
+    :param session: Сессия БД
+    :return: Войс или None
+    """
+    return session.query(Voice)\
+        .filter(Voice.id == voice_id)\
+        .first()

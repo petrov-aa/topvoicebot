@@ -1,4 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+import json
+
+from sqlalchemy import Column, Integer, String, ForeignKey, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -14,6 +16,32 @@ class Chat(Base):
     telegram_chat_id = Column(String(32), index=True, unique=True)
     # Состояние чата пользователя с ботом
     state = Column(String(255))
+    # Данные для состояния в формате JSON
+    data = Column(Text)
+
+    STATE_WAIT_TITLE = "wait_title"
+
+    def set_state_wait_title(self, voice_id):
+        """
+        Устанавливает состояние чата в состояние ожидания названия для войса
+
+        :param voice_id: Идентификатор войса
+        """
+        data = {"voice_id": voice_id}
+        self.state = self.STATE_WAIT_TITLE
+        self.data = json.dumps(data)
+
+    def get_state_data(self):
+        """
+        Данные состояния чата
+
+        :return: dict состояния чата
+        """
+        if self.state is None:
+            return None
+        if self.data is None:
+            return None
+        return json.loads(self.data)
 
 
 class Voice(Base):
@@ -30,5 +58,5 @@ class Voice(Base):
     author_last_name = Column(String(255))
     # Идентификатор отправителя в бота
     sender_id = Column(Integer, ForeignKey("chat.id", ondelete="CASCADE"))
-    sender = relationship("Chat", cascade="all, delete-orphan")
+    sender = relationship("Chat")
     title = Column(String(255))

@@ -49,7 +49,8 @@ def get_commit_session():
         yield session
         session.commit()
     except Exception as e:
-        session.rollback()
+        raise e
+        # session.rollback()
     finally:
         session.close()
         __Session.remove()
