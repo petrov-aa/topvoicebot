@@ -88,6 +88,9 @@ def on_publish_command(message: TelegramMessage, session: Session = None):
         if not voice.can_edit(chat):
             bot.send_message(message.chat.id, t("app.error.voice.no_access"))
             return
+        if voice.is_public:
+            bot.send_message(message.chat.id, t("app.error.voice.already_published"))
+            return
         voice.is_public = True
         publish_to_channel(voice)
         bot.send_message(message.chat.id, t("app.message.voice_published"))
@@ -109,6 +112,9 @@ def on_publish_command(message: TelegramMessage, session: Session = None):
             return
         if not voice.can_edit(chat):
             bot.send_message(message.chat.id, t("app.error.voice.no_access"))
+            return
+        if not voice.is_public:
+            bot.send_message(message.chat.id, t("app.error.voice.not_published"))
             return
         voice.is_public = False
         unpublish_from_channel(voice)

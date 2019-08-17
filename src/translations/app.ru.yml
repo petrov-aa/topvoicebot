@@ -49,6 +49,8 @@ error:
     voice_not_found: Войс не добавлен
     no_access: Можно управлять только своими войсами
     voice_already_exists: Войс уже добавлен
+    already_published: Войс уже опубликован
+    not_published: Войс не опубликован
   channel:
     not_found: Канал не найден
     voice_not_published: Войс не опубликован
