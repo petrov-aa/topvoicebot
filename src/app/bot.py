@@ -3,7 +3,7 @@
 """
 from sqlalchemy.orm import Session
 from telebot import TeleBot, apihelper
-from telebot.types import Message as TelegramMessage, InlineQueryResultVoice, InlineQueryResultCachedVoice
+from telebot.types import Message as TelegramMessage, InlineQueryResultCachedVoice
 
 from app import config, db, repo, utils
 from app.models import Chat, Voice
