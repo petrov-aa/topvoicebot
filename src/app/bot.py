@@ -3,9 +3,9 @@
 """
 
 from telebot import TeleBot, apihelper
-from telebot.types import Message as TelegramMessage, InlineQueryResultVoice
+from telebot.types import Message as TelegramMessage, InlineQueryResultVoice, InlineQueryResultCachedVoice
 
-from app import config, db, repo
+from app import config, db, repo, utils
 from app.models import Chat, Voice
 from app.messages import t
 
@@ -76,15 +76,32 @@ def on_text(message: TelegramMessage, session=None):
         bot.send_message(message.chat.id, t("app.message.voice_successfully_saved"))
 
 
+def build_suggestions_on_query(query: str):
+    suggestions = list()
+    if len(query) > 0:
+        voices = repo.search_voice(query)
+        for voice in voices:
+            author_full_name = utils.voice_author_full_name(voice)
+            title = "{} - {}".format(author_full_name, voice.title)
+            suggestions.append(InlineQueryResultCachedVoice("{} {}".format(voice.id, voice.title),
+                                                            voice.file_id,
+                                                            title,
+                                                            # по какой-то причине телеграм
+                                                            # отвергает значение None здесь, которое по умолчанию
+                                                            # Похоже на ошибку в telebot
+                                                            parse_mode="Markdown"))
+    return suggestions
+
+
 @bot.inline_handler(lambda query: True)
 @db.commit_session
 def on_inline(query, session=None):
     query_text = query.query
-    suggestions = list()
-    if len(query_text) > 0:
-        voices = repo.search_voice(query_text)
-        for voice in voices:
-            suggestions.append(InlineQueryResultVoice(voice.id,
-                                                      voice.file_id,
-                                                      voice.title))
-    bot.answer_inline_query(query.id, suggestions)
+    suggestions = build_suggestions_on_query(query_text)
+    # Обязательно устанавливаем is_personal в True, чтобы личные войсы
+    # не попадали к другим пользователям
+    # Кеш полностью отключаем
+    bot.answer_inline_query(query.id,
+                            suggestions,
+                            cache_time=0,
+                            is_personal=True)
