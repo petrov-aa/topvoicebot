@@ -46,6 +46,7 @@ def on_voice(message: TelegramMessage, session=None):
     voice.sender = chat
     author_id = deduct_voice_author(message)
     author = bot.get_chat(author_id)
+    voice.author_id = author_id
     # Если у автора сообщения нет ни имени ни фамилии, то
     # считаем его пересланным от канала или бота - в этом
     # случае просто игнорируем войс
