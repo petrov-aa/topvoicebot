@@ -122,7 +122,7 @@ def on_text(message: TelegramMessage, session=None):
         voice.title = message.text
         # Помечаем войс как активный
         voice.status = Voice.STATUS_ACTIVE
-        chat.state = None
+        chat.clear_state()
         bot.send_message(message.chat.id, t("app.message.voice_successfully_saved"))
 
 
