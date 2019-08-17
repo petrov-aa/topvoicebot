@@ -69,6 +69,8 @@ def unpublish_from_channel(voice):
     channel = get_channel()
     bot.delete_message(channel.id, voice.post_message_id)
     bot.delete_message(channel.id, voice.title_message_id)
+    voice.post_message_id = None
+    voice.title_message_id = None
 
 
 @bot.message_handler(commands=["publish"])
