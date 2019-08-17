@@ -56,6 +56,7 @@ error:
 config:
   bot_token_not_specified: Не указан токен бота
   db_url_not_specified: Не задан URL доступа к БД
+  run_method_not_specified: Не задан способ запуска бота
 
 alembic:
   db_url_not_specified: Не задан URL доступа к БД

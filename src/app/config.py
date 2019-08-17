@@ -27,3 +27,9 @@ ENV_VAR_CHANNEL_ID = "APP_CHANNEL_ID"
 if ENV_VAR_CHANNEL_ID not in os.environ:
     raise Exception(t("app.config.channel_id_not_specified"))
 CHANNEL_ID = os.environ[ENV_VAR_CHANNEL_ID]
+
+# Способ запуска бота: полинг или вебхук - обязательный
+ENV_VAR_RUN_METHOD = "APP_RUN_METHOD"
+if ENV_VAR_RUN_METHOD not in os.environ:
+    raise Exception(t("app.config.run_method_not_specified"))
+RUN_METHOD = os.environ[ENV_VAR_RUN_METHOD]
