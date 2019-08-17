@@ -79,6 +79,20 @@ def on_voice(message: TelegramMessage, session=None):
 @bot.message_handler(content_types=["text"])
 @db.commit_session
 def on_text(message: TelegramMessage, session=None):
+    """
+    Бот получает текст.
+
+    Сценарии:
+
+    1) Пользователь записывает новый войс в чате с ботом. Бот уже получил войс и предложил
+    пользователю ввести название войса. При этом состояние чата `STATE_WAIT_TITLE`. После
+    получения фразы, бот записывает название в войс и отправляет сообщение, что войс
+    успешно добавлен
+
+    :param message: Сообщение телеграм
+    :param session: Сессия БД
+    :return:
+    """
     chat = repo.chat_get_by_telegram_id(message.chat.id)
     if chat.state == Chat.STATE_WAIT_TITLE:
         state_data = chat.get_state_data()
