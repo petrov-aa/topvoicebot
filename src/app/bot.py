@@ -212,6 +212,7 @@ def on_text(message: TelegramMessage, session=None):
         voice_id = state_data["voice_id"]
         voice = repo.get_voice_by_id(voice_id)
         voice.title = message.text
+        voice.search_title = utils.create_search_title(voice.title)
         # Помечаем войс как активный
         voice.status = Voice.STATUS_ACTIVE
         chat.clear_state()
@@ -239,8 +240,11 @@ def build_suggestions_on_query(query: str, chat_id: int):
 @db.commit_session
 def on_inline(query, session=None):
     query_text = query.query
-    chat = repo.chat_get_by_telegram_id(query.from_user.id)
-    suggestions = build_suggestions_on_query(query_text, chat.id)
+    search_query_text = utils.create_search_title(query_text)
+    suggestions = list()
+    if len(search_query_text) > 0:
+        chat = repo.chat_get_by_telegram_id(query.from_user.id)
+        suggestions = build_suggestions_on_query(query_text, chat.id)
     a = 1
     # Обязательно устанавливаем is_personal в True, чтобы личные войсы
     # не попадали к другим пользователям

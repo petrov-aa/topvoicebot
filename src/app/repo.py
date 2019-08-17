@@ -74,5 +74,5 @@ def search_voice(query: str, chat_id: int, session: Session = None) -> list:
     return session.query(Voice)\
         .filter(Voice.status == Voice.STATUS_ACTIVE)\
         .filter(or_(Voice.is_public == true(), Voice.sender_id == chat_id))\
-        .filter(Voice.title.like(search))\
+        .filter(Voice.search_title.like(search))\
         .all()

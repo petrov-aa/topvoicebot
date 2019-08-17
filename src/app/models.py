@@ -67,7 +67,10 @@ class Voice(Base):
     # Идентификатор отправителя в бота
     sender_id = Column(Integer, ForeignKey("chat.id", ondelete="CASCADE"))
     sender = relationship("Chat")
+    # Название войса
     title = Column(String(255))
+    # Строка для поиска: все буквы строчные, пробелы и знаки препинания удалены
+    search_title = Column(String(255))
     # Состояние войса: в поиске могут участвовать только войсы, у которых уже задано название
     status = Column(String(255), nullable=False)
     # Является ли войс публичным: публичные войсы - войсы добавленные в канал топ войсы, и которые
