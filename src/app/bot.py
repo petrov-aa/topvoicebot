@@ -247,7 +247,6 @@ def on_inline(query, session=None):
     if len(search_query_text) > 0:
         chat = repo.chat_get_by_telegram_id(query.from_user.id)
         suggestions = build_suggestions_on_query(query_text, chat.id)
-    a = 1
     # Обязательно устанавливаем is_personal в True, чтобы личные войсы
     # не попадали к другим пользователям
     # Кеш полностью отключаем
