@@ -68,3 +68,10 @@ class Voice(Base):
     sender_id = Column(Integer, ForeignKey("chat.id", ondelete="CASCADE"))
     sender = relationship("Chat")
     title = Column(String(255))
+    # Состояние войса: в поиске могут участвовать только войсы, у которых уже задано название
+    status = Column(String(255), nullable=False)
+
+    # Войс только что добавлен и еще не имеет названия
+    STATUS_NEW = "new"
+    # Войс имеет название и может показываться в поиске
+    STATUS_ACTIVE = "active"

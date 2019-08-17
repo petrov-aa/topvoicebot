@@ -1,6 +1,7 @@
 """
 Интерфейс взаимодействия с объектами в базе данных
 """
+from sqlalchemy.orm import Session
 
 from app import db
 from app.models import Chat, Voice
@@ -53,8 +54,9 @@ def get_voice_by_id(voice_id: int, session=None) -> Voice:
 
 
 @db.flush_session
-def search_voice(query: str, session=None) -> list:
+def search_voice(query: str, session: Session = None) -> list:
     search = "%{}%".format(query)
     return session.query(Voice)\
+        .filter(Voice.status == Voice.STATUS_ACTIVE)\
         .filter(Voice.title.like(search))\
         .all()

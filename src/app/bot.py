@@ -85,6 +85,8 @@ def on_voice(message: TelegramMessage, session=None):
             return
         voice.author_first_name = author.first_name
         voice.author_last_name = author.last_name
+        # Устанавливаем состояние войса в новый, чтобы он пока был недоступен в поиске
+        voice.status = Voice.STATUS_NEW
         session.add(voice)
         session.flush()
         chat.set_state_wait_title(voice.id)
@@ -118,6 +120,8 @@ def on_text(message: TelegramMessage, session=None):
         voice_id = state_data["voice_id"]
         voice = repo.get_voice_by_id(voice_id)
         voice.title = message.text
+        # Помечаем войс как активный
+        voice.status = Voice.STATUS_ACTIVE
         chat.state = None
         bot.send_message(message.chat.id, t("app.message.voice_successfully_saved"))
 
