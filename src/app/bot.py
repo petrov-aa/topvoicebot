@@ -40,24 +40,40 @@ def deduct_voice_author(message: TelegramMessage):
 @bot.message_handler(content_types=["voice"])
 @db.commit_session
 def on_voice(message: TelegramMessage, session=None):
+    """
+    Бот получает войс.
+
+    Сценарии:
+
+    1) Пользователь записывает новый войс в чате с ботом. При этом
+    состояние чата должно быть пустым. После получения войса, бот
+    сохраняет войс в базе и предлагает пользователю отправить название
+    для войса.
+
+    :param message: Сообщение телеграм с войсом
+    :param session: Сессия БД
+    :return:
+    """
     chat = repo.chat_get_by_telegram_id(message.chat.id)
-    voice = Voice()
-    voice.file_id = message.voice.file_id
-    voice.sender = chat
-    author_id = deduct_voice_author(message)
-    author = bot.get_chat(author_id)
-    voice.author_id = author_id
-    # Если у автора сообщения нет ни имени ни фамилии, то
-    # считаем его пересланным от канала или бота - в этом
-    # случае просто игнорируем войс
-    if author.first_name is None and author.last_name is None:
-        return
-    voice.author_first_name = author.first_name
-    voice.author_last_name = author.last_name
-    session.add(voice)
-    session.flush()
-    chat.set_state_wait_title(voice.id)
-    bot.send_message(message.chat.id, t("app.message.send_title"))
+    if chat.state is None:
+        # Состояние чата пусто, сохраняем войс как новый
+        voice = Voice()
+        voice.file_id = message.voice.file_id
+        voice.sender = chat
+        author_id = deduct_voice_author(message)
+        author = bot.get_chat(author_id)
+        voice.author_id = author_id
+        # Если у автора сообщения нет ни имени ни фамилии, то
+        # считаем его пересланным от канала или бота - в этом
+        # случае просто игнорируем войс
+        if author.first_name is None and author.last_name is None:
+            return
+        voice.author_first_name = author.first_name
+        voice.author_last_name = author.last_name
+        session.add(voice)
+        session.flush()
+        chat.set_state_wait_title(voice.id)
+        bot.send_message(message.chat.id, t("app.message.send_title"))
 
 
 @bot.message_handler(content_types=["text"])
