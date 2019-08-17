@@ -48,6 +48,7 @@ error:
   voice:
     voice_not_found: Войс не добавлен
     no_access: Можно управлять только своими войсами
+    voice_already_exists: Войс уже добавлен
 
 config:
   bot_token_not_specified: Не указан токен бота

@@ -115,8 +115,16 @@ def on_voice(message: TelegramMessage, session=None):
     chat = repo.chat_get_by_telegram_id(message.chat.id)
     if chat.state is None:
         # Состояние чата пусто, сохраняем войс как новый
+        file_id = message.voice.file_id
+        # Проверяем был ли войс добавлен ранее. Уникальность войса определяется по file_id
+        # TODO проверять уникальность войса по file_id и id пользователя, чтобы
+        # можно было добавлять один и тот же войс разным пользователями без публикации
+        check_voice = repo.get_voice_by_file_id(file_id)
+        if check_voice is not None:
+            bot.send_message(message.chat.id, t("app.error.voice.voice_already_exists"))
+            return
         voice = Voice()
-        voice.file_id = message.voice.file_id
+        voice.file_id = file_id
         voice.sender = chat
         author_id = deduct_voice_author(message)
         author = bot.get_chat(author_id)

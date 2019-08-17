@@ -58,7 +58,7 @@ class Voice(Base):
     """
     __tablename__ = 'voice'
     id = Column(Integer, primary_key=True)
-    file_id = Column(String(255))  # TODO сделать уникальным
+    file_id = Column(String(255), unique=True)
     # Идентификатор телеграм автора войса
     author_id = Column(String(32))
     # Имя и фамилия отправителя войса. Кешируем, чтобы не ходить за каждым автором в телеграм
