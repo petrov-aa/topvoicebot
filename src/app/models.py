@@ -31,6 +31,14 @@ class Chat(Base):
         self.state = self.STATE_WAIT_TITLE
         self.data = json.dumps(data)
 
+    def clear_state(self):
+        """
+        Очищает состояние чата
+
+        """
+        self.state = None
+        self.data = None
+
     def get_state_data(self):
         """
         Данные состояния чата

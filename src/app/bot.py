@@ -1,7 +1,7 @@
 """
 Бот
 """
-
+from sqlalchemy.orm import Session
 from telebot import TeleBot, apihelper
 from telebot.types import Message as TelegramMessage, InlineQueryResultVoice, InlineQueryResultCachedVoice
 
@@ -20,6 +20,21 @@ bot = TeleBot(config.BOT_TOKEN)
 def on_help_command(message: TelegramMessage, session=None):
     chat = repo.chat_get_by_telegram_id(message.chat.id)
     bot.send_message(chat.telegram_chat_id, t("app.message.help"), parse_mode="Markdown")
+
+
+@bot.message_handler(commands=['cancel'])
+@db.commit_session
+def on_cancel_command(message: TelegramMessage, session: Session = None):
+    chat = repo.chat_get_by_telegram_id(message.chat.id)
+    if chat.state == Chat.STATE_WAIT_TITLE:
+        data = chat.get_state_data()
+        if 'voice_id' not in data or data['voice_id'] is None:
+            raise Exception(t("app.error.state_wait_title.no_voice_id"))
+        voice_id = data['voice_id']
+        voice = repo.get_voice_by_id(voice_id)
+        session.delete(voice)
+        chat.clear_state()
+        bot.send_message(message.chat.id, t("app.message.operation_cancelled"))
 
 
 def deduct_voice_author(message: TelegramMessage):
