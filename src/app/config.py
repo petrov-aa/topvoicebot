@@ -21,3 +21,9 @@ ENV_VAR_DB_URL = "APP_DB_URL"
 if ENV_VAR_DB_URL not in os.environ:
     raise Exception(t("app.config.db_url_not_specified"))
 DB_URL = os.environ[ENV_VAR_DB_URL]
+
+# Идентификатор канала топ войсы - обязательный
+ENV_VAR_CHANNEL_ID = "APP_CHANNEL_ID"
+if ENV_VAR_CHANNEL_ID not in os.environ:
+    raise Exception(t("app.config.channel_id_not_specified"))
+CHANNEL_ID = os.environ[ENV_VAR_CHANNEL_ID]

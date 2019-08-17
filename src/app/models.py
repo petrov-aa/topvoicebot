@@ -73,6 +73,10 @@ class Voice(Base):
     # Является ли войс публичным: публичные войсы - войсы добавленные в канал топ войсы, и которые
     # могут использовать любые пользователи
     is_public = Column(Boolean, default=False, nullable=False)
+    # Идентификатор сообщения с войсом в канале
+    post_message_id = Column(Integer)
+    # Идентификатор сообщения с подписью войса в канале
+    title_message_id = Column(Integer)
 
     # Войс только что добавлен и еще не имеет названия
     STATUS_NEW = "new"

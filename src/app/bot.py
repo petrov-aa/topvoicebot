@@ -4,7 +4,7 @@
 
 from sqlalchemy.orm import Session
 from telebot import TeleBot, apihelper
-from telebot.types import Message as TelegramMessage, InlineQueryResultCachedVoice
+from telebot.types import Message as TelegramMessage, Chat as TelegramChat, InlineQueryResultCachedVoice
 
 from app import config, db, repo, utils
 from app.models import Chat, Voice
@@ -38,6 +38,39 @@ def on_cancel_command(message: TelegramMessage, session: Session = None):
         bot.send_message(message.chat.id, t("app.message.operation_cancelled"))
 
 
+def get_channel():
+    """
+    Получить канал с топ войсами
+
+    :return: Канал с топ войсами
+    :rtype: TelegramChat
+    """
+    channel = bot.get_chat(config.CHANNEL_ID)
+    if channel is None:
+        raise Exception(t("app.error.channel.not_found"))
+    return channel
+
+
+def publish_to_channel(voice):
+    channel = get_channel()
+    post_message = bot.send_voice(channel.id, voice.file_id)
+    title_message = bot.send_message(channel.id,
+                                     voice.title,
+                                     reply_to_message_id=post_message.message_id,
+                                     disable_web_page_preview=True,
+                                     parse_mode="Markdown")
+    voice.post_message_id = post_message.message_id
+    voice.title_message_id = title_message.message_id
+
+
+def unpublish_from_channel(voice):
+    if voice.post_message_id is None:
+        raise Exception(t("app.error.channel.voice_not_published"))
+    channel = get_channel()
+    bot.delete_message(channel.id, voice.post_message_id)
+    bot.delete_message(channel.id, voice.title_message_id)
+
+
 @bot.message_handler(commands=["publish"])
 @db.commit_session
 def on_publish_command(message: TelegramMessage, session: Session = None):
@@ -56,6 +89,7 @@ def on_publish_command(message: TelegramMessage, session: Session = None):
             bot.send_message(message.chat.id, t("app.error.voice.no_access"))
             return
         voice.is_public = True
+        publish_to_channel(voice)
         bot.send_message(message.chat.id, t("app.message.voice_published"))
 
 
@@ -77,6 +111,7 @@ def on_publish_command(message: TelegramMessage, session: Session = None):
             bot.send_message(message.chat.id, t("app.error.voice.no_access"))
             return
         voice.is_public = False
+        unpublish_from_channel(voice)
         bot.send_message(message.chat.id, t("app.message.voice_unpublished"))
 
 
