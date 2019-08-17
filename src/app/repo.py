@@ -1,6 +1,7 @@
 """
 Интерфейс взаимодействия с объектами в базе данных
 """
+from sqlalchemy import or_, true
 from sqlalchemy.orm import Session
 
 from app import db
@@ -54,9 +55,24 @@ def get_voice_by_id(voice_id: int, session=None) -> Voice:
 
 
 @db.flush_session
-def search_voice(query: str, session: Session = None) -> list:
+def get_voice_by_file_id(file_id: str, session=None) -> Voice:
+    """
+    Возвращает войс по идентификатору файла в телеграме
+
+    :param file_id: Идентификатор файла войса в телеграме
+    :param session: Сессия БД
+    :return: Войс или None
+    """
+    return session.query(Voice)\
+        .filter(Voice.file_id == file_id)\
+        .first()
+
+
+@db.flush_session
+def search_voice(query: str, chat_id: int, session: Session = None) -> list:
     search = "%{}%".format(query)
     return session.query(Voice)\
         .filter(Voice.status == Voice.STATUS_ACTIVE)\
+        .filter(or_(Voice.is_public == true(), Voice.sender_id == chat_id))\
         .filter(Voice.title.like(search))\
         .all()

@@ -38,6 +38,48 @@ def on_cancel_command(message: TelegramMessage, session: Session = None):
         bot.send_message(message.chat.id, t("app.message.operation_cancelled"))
 
 
+@bot.message_handler(commands=["publish"])
+@db.commit_session
+def on_publish_command(message: TelegramMessage, session: Session = None):
+    chat = repo.chat_get_by_telegram_id(message.chat.id)
+    if chat.state is None:
+        if message.reply_to_message is None:
+            return
+        if message.reply_to_message.voice is None:
+            return
+        file_id = message.reply_to_message.voice.file_id
+        voice = repo.get_voice_by_file_id(file_id)
+        if voice is None or not voice.is_active():
+            bot.send_message(message.chat.id, t("app.error.voice.voice_not_found"))
+            return
+        if not voice.can_edit(chat):
+            bot.send_message(message.chat.id, t("app.error.voice.no_access"))
+            return
+        voice.is_public = True
+        bot.send_message(message.chat.id, t("app.message.voice_published"))
+
+
+@bot.message_handler(commands=["unpublish"])
+@db.commit_session
+def on_publish_command(message: TelegramMessage, session: Session = None):
+    chat = repo.chat_get_by_telegram_id(message.chat.id)
+    if chat.state is None:
+        if message.reply_to_message is None:
+            return
+        if message.reply_to_message.voice is None:
+            return
+        file_id = message.reply_to_message.voice.file_id
+        voice = repo.get_voice_by_file_id(file_id)
+        if voice is None or not voice.is_active():
+            bot.send_message(message.chat.id, t("app.error.voice.voice_not_found"))
+            return
+        if not voice.can_edit(chat):
+            bot.send_message(message.chat.id, t("app.error.voice.no_access"))
+            return
+        voice.is_public = False
+        bot.send_message(message.chat.id, t("app.message.voice_unpublished"))
+
+
 def deduct_voice_author(message: TelegramMessage):
     """
     Возвращает идентификатор в телеграм автора войса. Войс может быть переслан
@@ -127,10 +169,10 @@ def on_text(message: TelegramMessage, session=None):
         bot.send_message(message.chat.id, t("app.message.voice_successfully_saved"))
 
 
-def build_suggestions_on_query(query: str):
+def build_suggestions_on_query(query: str, chat_id: int):
     suggestions = list()
     if len(query) > 0:
-        voices = repo.search_voice(query)
+        voices = repo.search_voice(query, chat_id)
         for voice in voices:
             author_full_name = utils.voice_author_full_name(voice)
             title = "{} - {}".format(author_full_name, voice.title)
@@ -148,7 +190,9 @@ def build_suggestions_on_query(query: str):
 @db.commit_session
 def on_inline(query, session=None):
     query_text = query.query
-    suggestions = build_suggestions_on_query(query_text)
+    chat = repo.chat_get_by_telegram_id(query.from_user.id)
+    suggestions = build_suggestions_on_query(query_text, chat.id)
+    a = 1
     # Обязательно устанавливаем is_personal в True, чтобы личные войсы
     # не попадали к другим пользователям
     # Кеш полностью отключаем

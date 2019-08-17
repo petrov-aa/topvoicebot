@@ -1,6 +1,6 @@
 import json
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, Text, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
@@ -58,7 +58,7 @@ class Voice(Base):
     """
     __tablename__ = 'voice'
     id = Column(Integer, primary_key=True)
-    file_id = Column(String(255))
+    file_id = Column(String(255))  # TODO сделать уникальным
     # Идентификатор телеграм автора войса
     author_id = Column(String(32))
     # Имя и фамилия отправителя войса. Кешируем, чтобы не ходить за каждым автором в телеграм
@@ -70,8 +70,24 @@ class Voice(Base):
     title = Column(String(255))
     # Состояние войса: в поиске могут участвовать только войсы, у которых уже задано название
     status = Column(String(255), nullable=False)
+    # Является ли войс публичным: публичные войсы - войсы добавленные в канал топ войсы, и которые
+    # могут использовать любые пользователи
+    is_public = Column(Boolean, default=False, nullable=False)
 
     # Войс только что добавлен и еще не имеет названия
     STATUS_NEW = "new"
     # Войс имеет название и может показываться в поиске
     STATUS_ACTIVE = "active"
+
+    def is_active(self):
+        return self.status == self.STATUS_ACTIVE
+
+    def can_edit(self, chat: Chat):
+        """
+        Проверяет может ли пользователь управлять войсом - можно управлять
+        только своими войсами
+
+        :param chat: Объект чата
+        :return: True, если войсом можно управлять. В противном случае False
+        """
+        return self.sender_id == chat.id
