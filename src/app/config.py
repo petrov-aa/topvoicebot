@@ -33,3 +33,9 @@ ENV_VAR_RUN_METHOD = "APP_RUN_METHOD"
 if ENV_VAR_RUN_METHOD not in os.environ:
     raise Exception(t("app.config.run_method_not_specified"))
 RUN_METHOD = os.environ[ENV_VAR_RUN_METHOD]
+
+# Путь к файлу логов - обязательный
+ENV_VAR_LOG_FILENAME = "APP_LOG_FILENAME"
+if ENV_VAR_LOG_FILENAME not in os.environ:
+    raise Exception(t("app.config.log_filename_not_specified"))
+LOG_FILENAME = os.environ[ENV_VAR_LOG_FILENAME]
