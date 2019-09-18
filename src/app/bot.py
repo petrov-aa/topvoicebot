@@ -2,6 +2,8 @@
 Бот
 """
 
+import hashlib
+
 from sqlalchemy.orm import Session
 from telebot import TeleBot, apihelper
 from telebot.types import Message as TelegramMessage, Chat as TelegramChat, InlineQueryResultCachedVoice
@@ -228,7 +230,9 @@ def build_suggestions_on_query(query: str, chat_id: int):
         for voice in voices:
             author_full_name = utils.voice_author_full_name(voice)
             title = "{} - {}".format(author_full_name, voice.title)
-            suggestions.append(InlineQueryResultCachedVoice("{} {}".format(voice.id, voice.title),
+            result_id = "{} {}".format(voice.id, voice.title)
+            result_id_hash = hashlib.md5(result_id.encode('utf-8')).hexdigest()
+            suggestions.append(InlineQueryResultCachedVoice(result_id_hash,
                                                             voice.file_id,
                                                             title,
                                                             # по какой-то причине телеграм
