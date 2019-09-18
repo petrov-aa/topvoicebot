@@ -2,10 +2,11 @@
 Бот
 """
 
+import logging
 import hashlib
 
 from sqlalchemy.orm import Session
-from telebot import TeleBot, apihelper
+from telebot import TeleBot, apihelper, logger
 from telebot.types import Message as TelegramMessage, Chat as TelegramChat, InlineQueryResultCachedVoice
 
 from app import config, db, repo, utils
@@ -14,6 +15,8 @@ from app.messages import t
 
 if config.BOT_PROXY:
     apihelper.proxy = {"https": config.BOT_PROXY}
+
+logger.setLevel(logging.ERROR)
 
 bot = TeleBot(config.BOT_TOKEN)
 
